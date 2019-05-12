@@ -1,0 +1,16 @@
+# resource "aws_dynamodb_table" "deliveries"{
+#   name = "deliveries"
+#   hash_key = "id"
+#   read_capacity = 2
+#   write_capacity = 2
+
+#   attribute {
+#     name = "id"
+#     type = "S"
+#   }
+# }
+
+resource "aws_s3_bucket" "api" {
+  bucket = "raskon-cep"
+}
+

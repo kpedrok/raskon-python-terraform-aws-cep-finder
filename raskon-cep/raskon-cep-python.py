@@ -161,8 +161,8 @@ def lambda_handler(event, context):
         "body": json.dumps(cep_info, sort_keys=True,  ensure_ascii=False, indent=4, cls=DecimalEncoder),
     }
 
-lambda_handler({
-  "queryStringParameters": {
-    "cep": "90480200"
-  }
-},"")
+# lambda_handler({
+#   "queryStringParameters": {
+#     "cep": "90480200"
+#   }
+# },"")

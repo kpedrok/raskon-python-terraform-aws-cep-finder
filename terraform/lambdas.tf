@@ -6,12 +6,12 @@ module "lambda_raskon_cep" {
   runtime       = "python3.7"
   timeout       = "5"
 
-  extra_policy_statements = [<<EOF
-{
-  "Effect": "Allow",
-  "Action": "dynamodb:*",
-  "Resource": "*"
-}
-EOF
-  ]
+  #   extra_policy_statements = [<<EOF
+  # {
+  #   "Effect": "Allow",
+  #   "Action": "dynamodb:*",
+  #   "Resource": "*"
+  # }
+  # EOF
+  #   ]
 }

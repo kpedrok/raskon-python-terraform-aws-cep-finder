@@ -158,5 +158,8 @@ def lambda_handler(event, context):
     print(cep_info)
     return {
         "statusCode": 200,
+        'headers': {
+            'Access-Control-Allow-Origin': '*'
+        },
         "body": json.dumps(cep_info, sort_keys=True,  ensure_ascii=False, indent=4, cls=DecimalEncoder),
     }

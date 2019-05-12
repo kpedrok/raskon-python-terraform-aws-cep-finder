@@ -1,6 +1,6 @@
 resource "aws_api_gateway_rest_api" "api" {
   name        = "raskon-cep"
-  description = ""
+  description = "API para Consulta de cep"
 }
 
 resource "aws_api_gateway_deployment" "deployment" {

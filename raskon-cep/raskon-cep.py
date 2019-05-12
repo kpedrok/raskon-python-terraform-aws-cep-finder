@@ -160,9 +160,3 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": json.dumps(cep_info, sort_keys=True,  ensure_ascii=False, indent=4, cls=DecimalEncoder),
     }
-
-# lambda_handler({
-#   "queryStringParameters": {
-#     "cep": "90480200"
-#   }
-# },"")

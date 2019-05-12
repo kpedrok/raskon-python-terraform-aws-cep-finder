@@ -1,0 +1,9 @@
+
+## raskon-cep
+```python
+lambda_handler({
+    "queryStringParameters": {
+        "cep": "9200ewew"
+    }
+}, "")
+```

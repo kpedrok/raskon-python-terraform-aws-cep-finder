@@ -1,7 +1,5 @@
 #/bin/bash
 
-# export AWS_ACCESS_KEY_ID=AKIAIU4PND4LOG4TSHHQ
-# export AWS_SECRET_ACCESS_KEY=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
 cd terraform
 terraform init
 terraform plan -out=plan

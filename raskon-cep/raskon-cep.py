@@ -28,7 +28,7 @@ def viacep(cep):
     cep_info['cidade'] = consulta['localidade']
     cep_info['uf'] = consulta['uf']
     cep_info['ibge'] = consulta['ibge']
-    print("viacep")
+    print("viacep", consulta)
 
 
 # viacep("90480200")
@@ -45,8 +45,7 @@ def postmon(cep):
     cep_info['cidade'] = consulta['cidade']
     cep_info['uf'] = consulta['estado']
     cep_info['ibge'] = consulta['cidade_info']['codigo_ibge']
-    print("postmon")
-    # print(consulta)
+    print("postmon", consulta)
 
 
 # postmon("90480200")
@@ -63,7 +62,7 @@ def ws(cep):
     cep_info['cidade'] = consulta['cidade']
     cep_info['uf'] = consulta['estado']
     cep_info['ibge'] = consulta['codibge']
-    print("ws")
+    print("ws", consulta)
 
 
 # ws("90480200")
@@ -84,7 +83,7 @@ def cepaberto(cep):
     cep_info['cidade'] = consulta['cidade']['nome']
     cep_info['uf'] = consulta['estado']['sigla']
     cep_info['ibge'] = consulta['cidade']['ibge']
-    print("cepaberto")
+    print("cepaberto", consulta)
 
 
 # cepaberto("90480200")
@@ -118,7 +117,7 @@ def portalpostal(cep):
         cep_info['logradouro'] = ""
         return json.loads("{\"erro\": true, \"mensagem\": \"Formato incorreto\"}")
     else:
-        print("portalpostal")
+        print("portalpostal", consulta)
 
 
 # portalpostal("90480200")
@@ -126,17 +125,18 @@ def portalpostal(cep):
 
 def find_cep(cep):
     cep = str(cep).replace("-", "").replace(".", "")
+    cepaberto(cep)
     try:
-        viacep(ceap)
+        viacep(cep)
     except:
         try:
             postmon(cep)
         except:
             try:
-                ws(cep)
+                cepaberto(cep)
             except:
                 try:
-                    cepaberto(cep)
+                    ws(cep)
                 except:
                     try:
                         portalpostal(cep)
@@ -155,11 +155,19 @@ def find_cep(cep):
 
 def lambda_handler(event, context):
     find_cep(event['queryStringParameters']['cep'])
-    print(cep_info)
+    print(json.dumps(cep_info, sort_keys=True,
+                     ensure_ascii=False, indent=2, cls=DecimalEncoder))
     return {
         "statusCode": 200,
         'headers': {
             'Access-Control-Allow-Origin': '*'
         },
-        "body": json.dumps(cep_info, sort_keys=True,  ensure_ascii=False, indent=4, cls=DecimalEncoder),
+        "body": json.dumps(cep_info, sort_keys=True,  ensure_ascii=False, indent=2, cls=DecimalEncoder),
     }
+
+
+# lambda_handler({
+#     "queryStringParameters": {
+#         "cep": "42827-674"
+#     }
+# }, "")

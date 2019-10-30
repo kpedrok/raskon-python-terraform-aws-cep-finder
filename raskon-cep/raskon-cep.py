@@ -1,7 +1,8 @@
 import decimal
-import json
-
+# import requests
 from botocore.vendored import requests
+import json
+from unicodedata import normalize
 
 
 class DecimalEncoder(json.JSONEncoder):
@@ -28,10 +29,7 @@ def viacep(cep):
     cep_info['cidade'] = consulta['localidade']
     cep_info['uf'] = consulta['uf']
     cep_info['ibge'] = consulta['ibge']
-    print("viacep", consulta)
-
-
-# viacep("90480200")
+    print("viacep", consulta, "\n")
 
 
 def postmon(cep):
@@ -45,10 +43,7 @@ def postmon(cep):
     cep_info['cidade'] = consulta['cidade']
     cep_info['uf'] = consulta['estado']
     cep_info['ibge'] = consulta['cidade_info']['codigo_ibge']
-    print("postmon", consulta)
-
-
-# postmon("90480200")
+    print("postmon", consulta, "\n")
 
 
 def ws(cep):
@@ -62,10 +57,7 @@ def ws(cep):
     cep_info['cidade'] = consulta['cidade']
     cep_info['uf'] = consulta['estado']
     cep_info['ibge'] = consulta['codibge']
-    print("ws", consulta)
-
-
-# ws("90480200")
+    print("ws", consulta, "\n")
 
 
 def cepaberto(cep):
@@ -83,10 +75,7 @@ def cepaberto(cep):
     cep_info['cidade'] = consulta['cidade']['nome']
     cep_info['uf'] = consulta['estado']['sigla']
     cep_info['ibge'] = consulta['cidade']['ibge']
-    print("cepaberto", consulta)
-
-
-# cepaberto("90480200")
+    print("cepaberto", consulta, "\n")
 
 
 def portalpostal(cep):
@@ -105,6 +94,7 @@ def portalpostal(cep):
     }
     response = requests.request("GET", url, headers=headers)
     consulta = json.loads(response.text)
+    print(consulta)
     cep_info['cep'] = consulta['data']['endereco']['cep']
     cep_info['logradouro'] = consulta['data']['endereco']['logradouro']
     cep_info['numero'] = ""
@@ -115,17 +105,60 @@ def portalpostal(cep):
     if cep_info['logradouro'] == 'CEP inexistente':
         print("Erro - ", cep)
         cep_info['logradouro'] = ""
-        return json.loads("{\"erro\": true, \"mensagem\": \"Formato incorreto\"}")
+        # return json.loads("{\"erro\": true, \"mensagem\": \"Formato incorreto\"}")
+        return {
+            "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.loads("{\"erro\": true, \"mensagem\": \"Formato incorreto\"}"),
+        }
     else:
-        print("portalpostal", consulta)
+        print("portalpostal", consulta, "\n")
 
 
-# portalpostal("90480200")
+def cepla (cep):
+    try:
+        url = "http://cep.la/" + cep
+        headers = {
+            'cache-control': "no-cache",
+            'Accept': "application/json",
+            }
+
+        response = requests.request("GET", url, headers=headers)
+        consulta = json.loads(response.text)
+        cep_info['cep'] = consulta['cep']
+        cep_info['logradouro'] = consulta["logradouro"].split("-")[0]
+        cep_info['numero'] = ' '
+        cep_info['bairro'] = consulta['bairro']
+        cep_info['cidade'] = consulta['cidade']
+        cep_info['uf'] = consulta['uf']
+        uf = formatar_texto(cep_info['uf'])
+        cidade = formatar_texto(cep_info['cidade'])
+        url = "https://cidades.ibge.gov.br/brasil/" + uf + "/" + cidade + "/panorama"
+        response_ibge = requests.request("GET", url)
+        ibge = response_ibge.text
+        ibge = (ibge.split('Código do Município'))[1].split('Gentílico')[0].strip()
+        ibge = (ibge.split('class="topo__valor">')
+                )[1].split('</p>')[0].strip()
+        cep_info['ibge'] = str(ibge)
+        print("cepla", consulta, "\n")
+    except:
+        print("Erro - ", cep)
+        return {
+            "statusCode": 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.loads("{\"erro\": true, \"mensagem\": \"Formato incorreto\"}"),
+        }
+
+def formatar_texto(txt):
+    return normalize('NFKD', txt).encode('ASCII', 'ignore').decode('ASCII').strip().lower().replace(" ", "-")
 
 
 def find_cep(cep):
     cep = str(cep).replace("-", "").replace(".", "")
-    cepaberto(cep)
     try:
         viacep(cep)
     except:
@@ -139,8 +172,9 @@ def find_cep(cep):
                     ws(cep)
                 except:
                     try:
-                        portalpostal(cep)
+                        cepla(cep)
                     except Exception as e:
+                        print("erro")
                         print(e)
                         return json.loads("{\"erro\": true, \"mensagem\": \"Formato incorreto\"}")
 
@@ -160,14 +194,96 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         'headers': {
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
         },
         "body": json.dumps(cep_info, sort_keys=True,  ensure_ascii=False, indent=2, cls=DecimalEncoder),
     }
 
-
 # lambda_handler({
 #     "queryStringParameters": {
-#         "cep": "42827-674"
+#         "cep": "29904520"
+#     }
+# }, "")
+
+# cep = '29904-520'
+# cep = '04180-112aaa'
+# cepla(cep)
+# viacep(cep)
+# postmon(cep)
+# ws(cep)
+# cepaberto(cep)
+# portalpostal(cep)
+
+
+# erros= ['24070-170',]
+
+# teste_cep =[
+#   "01311-300",
+#   "64056-460",
+#   "30320-700",
+#   "41830-520",
+#   "24070-170",
+#   "32143-170",
+#   "58052-310",
+#   "42829-742",
+#   "60325-580",
+#   "90650-070",
+#   "31260-110",
+#   "75140-480",
+#   "60430-560",
+#   "95780-000",
+#   "90420-020",
+#   "39803-171",
+#   "13569-270",
+#   "20920-400",
+#   "01230-010",
+#   "03579-170",
+#   "22775-036",
+#   "49030-210",
+#   "88138-300",
+#   "13253-395",
+#   "68515-000",
+#   "41940-210",
+#   "33400-000",
+#   "80320-040",
+#   "28925-572",
+#   "96400-420",
+#   "02841-090",
+#   "72405-560",
+#   "80710-250",
+#   "70686-060",
+#   "04671-260",
+#   "89031-000",
+#   "66080-680",
+#   "22250-040",
+#   "96020-390",
+#   "15601-242",
+#   "70876-550",
+#   "05016-081",
+#   "31535-400",
+#   "13087-773",
+#   "38700-543",
+#   "38240-000",
+#   "05351-015",
+#   "74460-190",
+#   "89900-000",
+#   "85015-390",
+#   "79970-000",
+#   "01432-010",
+#   "22280-080",
+#   "37500-193",
+#   "74453-330",
+#   "29904-520",
+#   "03131-020",
+#   "40450-211",
+#   "11065-410",
+#   "23060-210"
+# ]
+
+# for ceps in teste_cep:
+#     print(ceps)
+#     lambda_handler({
+#     "queryStringParameters": {
+#         "cep":ceps
 #     }
 # }, "")

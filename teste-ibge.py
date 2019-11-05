@@ -12,15 +12,14 @@ headers = {
     'Cookie': "ROUTEID=.sdadosSSL2",
     'Connection': "keep-alive",
     'cache-control': "no-cache"
-    }
+}
 
 response = requests.request("GET", url, headers=headers)
 
 
-
 lista_ibge = response.text
 lista_ibge = json.loads(lista_ibge)
+i = 0
 for linha in lista_ibge:
-    print(linha['id'])
-    print(linha['nome'])
-    print(linha['microrregiao']['mesorregiao']['UF']['sigla'])
+    i = i+1
+    print(i," - ", linha['microrregiao']['mesorregiao']['UF']['sigla'], " - ", linha['nome'], " - ",linha['id'])

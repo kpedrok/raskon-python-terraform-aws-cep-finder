@@ -1,6 +1,7 @@
 import requests
 import json
 teste_cep =[
+  "teste-error",
   "01311-300",
   "64056-460",
   "30320-700",

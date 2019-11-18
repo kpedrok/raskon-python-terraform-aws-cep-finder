@@ -1,4 +1,13 @@
 
+- https://www.correios.com.br/a-a-z/dne#tab-2
+- http://shopping.correios.com.br/wbm/store/script/wbm2400902p01.aspx?cd_company=ErZW8Dm9i54=&cd_department=SsNp3FlaUpM=
+- http://www.qualocep.com/
+- http://cep.la/baixar
+- https://github.com/elo7/edne-correios/blob/master/README.md
+- https://sourceforge.net/projects/openerpbrasilvm/files/bancos_de_dados/CEPs.sql.zip/download
+
+
+
 ## raskon-cep
 ```python
 lambda_handler({
